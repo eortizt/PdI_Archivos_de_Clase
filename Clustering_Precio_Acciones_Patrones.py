@@ -13,7 +13,7 @@ from datetime import datetime
 from eotg import eotg
 
 #%%
-names = ['TWTR']
+names = ['IVV']
 start = '09/27/2016'
 closes = eotg.get_closes(tickers=names,start_date=start, freq='d')
 
@@ -29,7 +29,7 @@ sub_norm = ((sub.transpose()-sub.mean(axis=1))/sub.std(axis=1)).transpose()
 
 #%% trabajar con rendimientos, en vez de precios
 rend_sub = sub.transpose().pct_change().dropna().transpose()*100
-#%% Experimentar con lo que se hizo en clase
+#%% Grafica de Codo
 n_grupos=20
 inercias = np.zeros(n_grupos)  
 for k in np.arange(n_grupos)+1:
@@ -43,7 +43,7 @@ plt.ylabel('Inercia Global')
 plt.show()
 
 #%% Reconocimmiento de patrones, se suponen n grupos
-model = KMeans(n_clusters=6,init='random')
+model = KMeans(n_clusters=5,init='random')
 model = model.fit(sub_norm)
 centroides = model.cluster_centers_
 plt.plot(centroides[:,0:5].transpose())
@@ -62,6 +62,7 @@ for k in pos:
     plt.plot(closes.index[np.arange(k-n_dias,k)],closes[names[0]][k-n_dias:k],'r-')
 plt.xlabel('Tiempo')
 plt.ylabel('Precio')
+plt.grid()
 plt.show()
 
 #%% Interpretar la agrupacion en funcion del tiempo
