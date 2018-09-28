@@ -13,8 +13,8 @@ from datetime import datetime
 from eotg import eotg
 
 #%%
-names = ['IVV']
-start = '09/27/2016'
+names = ['CSCO']
+start = '09/27/2017'
 closes = eotg.get_closes(tickers=names,start_date=start, freq='d')
 
 #%% Sub series
@@ -51,12 +51,11 @@ plt.xlabel('Dia')
 #plt.ylabel('Cambio %') usar solo con rend_sub
 plt.title('Patrones')
 
-#%%
 Ypredict = model.predict(sub_norm)
 #%% Colorear la serie de closes con el centroide actual
 nclust = Ypredict[-1]
 pos = np.arange(n_dias,len(closes))[Ypredict==nclust]
-plt.figure(figsize=(12,6))
+plt.figure(figsize=(13,6))
 plt.plot(closes,'b-')
 for k in pos:
     plt.plot(closes.index[np.arange(k-n_dias,k)],closes[names[0]][k-n_dias:k],'r-')
@@ -64,6 +63,13 @@ plt.xlabel('Tiempo')
 plt.ylabel('Precio')
 plt.grid()
 plt.show()
+
+#%% Graficar los grupos separados con su respectiva etiqueta
+n_subfig = np.ceil(np.sqrt(len(np.unique(Ypredict))))
+for k in np.arange(len(np.unique(Ypredict))):
+    plt.subplot(n_subfig,n_subfig,k+1)
+    plt.plot(centroides[k,:])
+    plt.ylabel('Cluster %d'%(k))
 
 #%% Interpretar la agrupacion en funcion del tiempo
 plt.subplot(211) #subplot de 2 filas por una columna, en el grafico 1
@@ -76,12 +82,6 @@ plt.xlabel('Tiempo')
 plt.ylabel('Grupo')
 plt.show()
 
-#%% Graficar los grupos separados con su respectiva etiqueta
-n_subfig = np.ceil(np.sqrt(len(np.unique(Ypredict))))
-for k in np.arange(len(np.unique(Ypredict))):
-    plt.subplot(n_subfig,n_subfig,k+1)
-    plt.plot(centroides[k,:])
-    plt.ylabel('Cluster %d'%(k))
 
 
 #%%
