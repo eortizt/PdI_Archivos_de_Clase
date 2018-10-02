@@ -13,7 +13,7 @@ from datetime import datetime
 from eotg import eotg
 
 #%%
-names = ['CSCO']
+names = ['ALFAA.MX']
 start = '09/27/2017'
 closes = eotg.get_closes(tickers=names,start_date=start, freq='d')
 
