@@ -8,7 +8,7 @@ Este es un archivo temporal
 # Importamos pandas y numpy
 import pandas as pd
 import numpy as np
-
+#%%
 # Resumen en base anual de rendimientos esperados y volatilidades
 annual_ret_summ = pd.DataFrame(columns=['EU', 'RU', 'Francia', 'Alemania', 'Japon'], index=['Media', 'Volatilidad'])
 annual_ret_summ.loc['Media'] = np.array([0.1355, 0.1589, 0.1519, 0.1435, 0.1497])
