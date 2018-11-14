@@ -1,14 +1,15 @@
 # -*- coding: utf-8 -*-
 """
-Editor de Spyder
+Created on Tue Nov 13 15:54:32 2018
 
-Este es un archivo temporal
+@author: Esteban Ortiz Tirado
 """
 
-# Importamos pandas y numpy
 import pandas as pd
 import numpy as np
 from eotg import eotg
+import matplotlib.pyplot as plt
+
 #%% Descarga de datos
 
 #quotes = pd.read_csv('quotes.csv')
@@ -29,26 +30,25 @@ annual_ret_summ = pd.DataFrame(index=['Media', 'Volatilidad'],columns=names)*252
 annual_ret_summ.loc['Media']=media_diaria*252
 annual_ret_summ.loc['Volatilidad']=desv_est*np.sqrt(252)
 annual_ret_summ
-#%% Datos dados
-
-# Resumen en base anual de rendimientos esperados y volatilidades
-annual_ret_summ = pd.DataFrame(columns=['EU', 'RU', 'Francia', 'Alemania', 'Japon'], index=['Media', 'Volatilidad'])
-annual_ret_summ.loc['Media'] = np.array([0.1355, 0.1589, 0.1519, 0.1435, 0.1497])
-annual_ret_summ.loc['Volatilidad'] = np.array([0.1535, 0.2430, 0.2324, 0.2038, 0.2298])
-
-annual_ret_summ.round(4)
-
-# Matriz de correlación
-corr = pd.DataFrame(data= np.array([[1.0000, 0.5003, 0.4398, 0.3681, 0.2663],
-                                    [0.5003, 1.0000, 0.5420, 0.4265, 0.3581],
-                                    [0.4398, 0.5420, 1.0000, 0.6032, 0.3923],
-                                    [0.3681, 0.4265, 0.6032, 1.0000, 0.3663],
-                                    [0.2663, 0.3581, 0.3923, 0.3663, 1.0000]]),
-                    columns=annual_ret_summ.columns, index=annual_ret_summ.columns)
-corr.round(4)
 #%%
 # Tasa libre de riesgo
 rf = 0.07
+
+#%%
+import random
+nube = pd.DataFrame(index=np.arange(5001),columns=['Media', 'Volatilidad'])
+Eind = np.array(annual_ret_summ.loc['Media'])
+Sigma = daily_ret.cov()
+for c in np.arange(5001):
+    r = [random.random() for i in range(1,len(names)+1)]
+    s = sum(r)
+    r = [ i/s for i in r ]
+    nube.Media.loc[c] = Eind.dot(np.array(r))
+    nube.Volatilidad.loc[c] = np.array(r).dot(Sigma).dot(np.array(r))
+
+plt.scatter(nube.Volatilidad,nube.Media)
+
+
 #%%
 # Encontrar portafolio de mínima varianza
 # Importamos minimize de optimize
@@ -135,7 +135,6 @@ frontera.Vol = np.sqrt((w*Std_EMV)**2+((1-w)*Std_minvar)**2+2*w*(1-w)*cov_p)
 frontera.SR = (frontera.Rend-rf)/frontera.Vol
 
 # Importar librerías de gráficos
-import matplotlib.pyplot as plt
 
 # Gráfica de dispersión de puntos coloreando 
 # de acuerdo a SR
@@ -152,38 +151,4 @@ plt.plot(Std_EMV,Er_EMV,'*r',ms=10,label='Port EMV')
 plt.plot(Std_minvar,Er_minvar,'*m',ms=10,label='Port Min Var')
 plt.colorbar()
 plt.legend(loc='best')
-plt.show()
-#%%
-# A partir de lo anterior, solo restaría construir la LAC y elegir la distribución de capital de acuerdo a las preferencias (aversión al riesgo).
-
-# Vector de wp variando entre 0 y 1.5 con k pasos
-k=101
-wp = np.linspace(0, 1.5, k)
-
-# DataFrame de CAL: 
-# 1. Índice: i
-# 2. Columnas 1-2: wp, wrf
-# 3. Columnas 3-4: E[r], sigma
-# 4. Columna 5: Sharpe ratio
-LAC = pd.DataFrame(index=np.arange(k), columns=['wp','wrf','E[r]','sigma','SR'])
-LAC['wp'] = wp
-LAC['wrf']= 1-wp
-LAC['E[r]']= wp*Er_EMV+(1-wp)*rf
-LAC['sigma']= wp*Std_EMV
-LAC['SR'] = (LAC['E[r]']-rf)/LAC['sigma']
-
-LAC.round(4)
-
-# Gráfica de dispersión de puntos coloreando 
-# de acuerdo a SR, portafolio EMV y LAC
-plt.figure(figsize=(10,7))
-plt.scatter(frontera.Vol,frontera.Rend,c=frontera.SR,cmap='RdYlBu')
-plt.plot(annual_ret_summ.loc['Volatilidad'],annual_ret_summ.loc['Media'],'og')
-plt.plot(Std_EMV,Er_EMV,'*r',ms=10,label='Port EMV')
-plt.plot(Std_minvar,Er_minvar,'*m',ms=10,label='Port Min Var')
-plt.plot(LAC['sigma'],LAC['E[r]'],'k--',lw=3)
-plt.colorbar()
-plt.legend(loc='best')
-plt.xlim(0,0.04)
-plt.ylim(0,0.5)
 plt.show()
